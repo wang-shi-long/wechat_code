@@ -42,48 +42,56 @@ class DB():
         self.c_button2.grid(row=0, column=3, padx=5, pady=5, sticky=tk.W)
     def download(self):
         # a = ['大胸妹', '小翘臀', '黑丝袜', '美腿控', '有颜值', '大杂烩']
-        case = self.menu.get()
-        print('================'.format(case))
-        category = {
-            'DXM': 2,
-            'XQT': 6,
-            'HSW': 7,
-            'MTK': 3,
-            'YYZ': 4,
-            'DZH': 5
-        }
+        try:
+            for i in range(1, int(self.page.get()) + 1):
+                case = self.menu.get()
+                print('下载第{}页'.format(i))
+                print('================{}'.format(case))
+                category = {
+                    'DXM': 2,
+                    'XQT': 6,
+                    'HSW': 7,
+                    'MTK': 3,
+                    'YYZ': 4,
+                    'DZH': 5
+                }
 
-        def get_cid():
-            cid = None
-            if case == '大胸妹':
-                cid = category['DXM']
-            elif case == '小翘臀':
-                cid = category['XQT']
-            elif case == '黑丝袜':
-                cid = category['HSW']
-            elif case == '美腿控':
-                cid = category['MTK']
-            elif case == '有颜值':
-                cid = category['YYZ']
-            elif case == '大杂烩':
-                cid = category['DZH']
-            return cid
+                def get_cid():
+                    cid = None
+                    if case == '大胸妹':
+                        cid = category['DXM']
+                    elif case == '小翘臀':
+                        cid = category['XQT']
+                    elif case == '黑丝袜':
+                        cid = category['HSW']
+                    elif case == '美腿控':
+                        cid = category['MTK']
+                    elif case == '有颜值':
+                        cid = category['YYZ']
+                    elif case == '大杂烩':
+                        cid = category['DZH']
+                    return cid
 
-        url = 'https://www.buxiuse.com/?cid={}'.format(get_cid())
-        headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.100 Safari/537.36',
-        }
-        response = requests.get(url=url, headers=headers)
-        html = response.text
-        soup = bs(html, 'lxml')  # 使用bs4中的css选择器
-        lis = soup.select('ul.thumbnails li')
-        for i in lis:
-            img = i.select('div.thumbnail div.img_single a img')[0].attrs['src']
-            name = i.select('div.thumbnail div.img_single a img')[0].attrs['title']
-            response = requests.get(img).content
-            with open('桌面/{}.jpg'.format(name), 'wb') as f:
-                f.write(response)
-            print('下载图片 ')
+                url = 'https://www.buxiuse.com/?cid={}&page={}'.format(get_cid(), i)
+                headers = {
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.100 Safari/537.36',
+                }
+                response = requests.get(url=url, headers=headers)
+                html = response.text
+                soup = bs(html, 'lxml')  # 使用bs4中的css选择器
+                lis = soup.select('ul.thumbnails li')
+                for i in lis:
+                    img = i.select('div.thumbnail div.img_single a img')[0].attrs['src']
+                    name = i.select('div.thumbnail div.img_single a img')[0].attrs['title']
+                    response = requests.get(img).content
+                    img_url = self.input.get()
+                    self.info.insert('end', "正在下载:" + name + '\n')
+                    # os.mkdir(img_url+'/'+case)
+                    with open('{}//{}.jpg'.format(img_url, name), 'wb') as f:
+                        f.write(response)
+                    print('下载成功 ')
+        except Exception as e:
+            print(e)
     def select_Path(self):
         """选取本地路径"""
         path_ = askdirectory()
